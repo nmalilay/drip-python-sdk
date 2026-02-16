@@ -17,7 +17,9 @@ def main():
 
     # Ping
     health = client.ping()
-    print(f"Ping: {'OK' if health.ok else 'FAIL'} ({health.latency_ms}ms)")
+    is_ok = health.get("ok") if isinstance(health, dict) else health.ok
+    latency = health.get("latency_ms") if isinstance(health, dict) else health.latency_ms
+    print(f"Ping: {'OK' if is_ok else 'FAIL'} ({latency}ms)")
 
     # Get or create customer
     try:
@@ -25,7 +27,7 @@ def main():
         print(f"Created customer: {customer.id}")
     except Exception:
         customers = client.list_customers()
-        customer = next(c for c in customers.customers if c.external_customer_id == "quickstart_user")
+        customer = next(c for c in customers.data if c.external_customer_id == "quickstart_user")
         print(f"Found existing customer: {customer.id}")
 
     # Track usage
@@ -40,7 +42,7 @@ def main():
     run_result = client.record_run(
         customer_id=customer.id,
         workflow="quickstart-workflow",
-        status="completed",
+        status="COMPLETED",
         events=[
             {
                 "event_type": "inference",
