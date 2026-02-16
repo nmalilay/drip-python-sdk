@@ -7,11 +7,38 @@ Usage:
     pip install drip-sdk
     export DRIP_API_KEY=sk_live_your_key_here
     python main.py
+
+Or put your key in a .env file:
+    echo 'DRIP_API_KEY=sk_live_your_key_here' > .env
+    python main.py
 """
+
+import os
+
+def load_dotenv(path):
+    """Load .env file into environment variables."""
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if '=' not in line:
+                    continue
+                key, val = line.split('=', 1)
+                val = val.strip()
+                if len(val) >= 2 and val[0] in ('"', "'") and val[-1] == val[0]:
+                    val = val[1:-1]
+                os.environ.setdefault(key.strip(), val)
+    except FileNotFoundError:
+        pass
 
 from drip import Drip
 
 def main():
+    load_dotenv('../.env')
+    load_dotenv('.env')
+
     client = Drip()
     print("Connected to Drip API")
 
